@@ -1,5 +1,5 @@
 from .onmanager import ONProcess
-from xml.etree import cElementTree
+from xml.etree import cElementTree, ElementTree
 import os
 
 # Check for the existing of ON_COM32_VERSION environment variable,
@@ -214,6 +214,7 @@ class PageContent():
         self.is_currently_viewed = ""
         self._children= []
         self.files = []
+        self.tagdefs = []
         if (xml != None):
             self.__deserialize_from_xml(xml)
 
@@ -243,11 +244,31 @@ class PageContent():
                     self.files.append(InsertedFile(node))       
                 elif (node.tag == namespace + "MediaFile"):
                     self.files.append(MediaFile(node, self))  
+                elif (node.tag == namespace + "TagDef"):
+                    self.tagdefs.append(TagDef(node))    
                 elif (node.tag == namespace + "Title"):
                     self._children.append(Title(node))    
                 elif (node.tag == namespace + "MediaPlaylist"):
                     self.media_playlist = MediaPlaylist(node, self)
 
+
+class TagDef():
+
+    def __init__ (self, xml=None):
+        self.index = -99
+        self.name = ""
+        if (xml != None):
+            self.__deserialize_from_xml(xml)
+
+    def __str__ (self):
+        return self.name
+
+    def __iter__ (self):
+        yield None
+
+    def __deserialize_from_xml(self, xml):
+        self.index = int(xml.get("index"))
+        self.name = xml.get("name")
 
 class Title():
 
@@ -353,6 +374,7 @@ class OE():
         self._children = []
         self.parent = parent_node
         self.files = []
+        self.tags = []
         self.media_indices = []
         if (xml != None):
             self.__deserialize_from_xml(xml)
@@ -402,6 +424,31 @@ class OE():
                 
             elif (node.tag == namespace + "MediaIndex"):
                 self.media_indices.append(MediaIndex(node, self))
+
+            elif (node.tag == namespace + "Tag"):
+                self.tags.append(Tag(node, self))
+
+
+class Tag():
+
+    def __init__ (self, xml=None, parent_node=None):
+        self.index = -99
+        self.completed = False
+        self.disabled = False
+        self.creationDate = ""
+        self.completionDate = ""
+        if (xml != None):
+            self.__deserialize_from_xml(xml)
+
+    def __iter__ (self):
+        yield None
+
+    def __deserialize_from_xml(self, xml):
+        self.index = int(xml.get("index"))
+        self.completed = xml.get("completed")
+        self.disabled = xml.get("disabled")
+        self.creationDate = xml.get("creationDate")
+        self.completionDate = xml.get("completionDate")
 
 
 class InsertedFile():
