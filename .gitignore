@@ -2,4 +2,5 @@ dist/*
 build/*
 MANIFEST
 onepy/__pycache__/
+cli/__pycache__/
 tests/__pycache__/
